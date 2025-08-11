@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Form Assistant</title>
+    <link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4 w-80 font-sans">
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h1 class="text-xl font-bold mb-4 text-center text-gray-800">Smart Form Assistant</h1>
+        
+        <div class="space-y-4">
+            <!-- Profile Creation -->
+            <div>
+                <label for="profileName" class="block text-sm font-medium text-gray-700">Profile Name</label>
+                <input type="text" id="profileName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2" placeholder="e.g., Personal Info">
+            </div>
+
+            <!-- New Field Inputs -->
+            <div id="fieldsContainer" class="space-y-2">
+                <div class="flex space-x-2 items-end">
+                    <div class="flex-1">
+                        <label for="fieldKey" class="block text-sm font-medium text-gray-700">Question Key</label>
+                        <input type="text" id="fieldKey" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2" placeholder="e.g., Full Name">
+                    </div>
+                    <div class="flex-1">
+                        <label for="fieldValue" class="block text-sm font-medium text-gray-700">Answer</label>
+                        <input type="text" id="fieldValue" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2" placeholder="e.g., John Doe">
+                    </div>
+                </div>
+                <!-- Saved fields list renders here -->
+                <div id="savedFields" class="space-y-2"></div>
+            </div>
+
+            <button id="addField" class="w-full bg-indigo-500 text-white py-2 px-4 rounded-md shadow hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                + Add Field
+            </button>
+
+            <button id="saveProfile" class="w-full bg-green-500 text-white py-2 px-4 rounded-md shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200 mt-2">
+                Save Profile
+            </button>
+
+            <!-- Settings -->
+            <div class="mt-4 border-t pt-4">
+                <h2 class="text-md font-semibold text-gray-800 mb-2">Settings</h2>
+                <div class="space-y-3">
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" id="reviewMode" class="form-checkbox h-4 w-4 text-indigo-600">
+                        <span class="text-sm text-gray-700">Review mode (highlight suggestions)</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" id="learningEnabled" class="form-checkbox h-4 w-4 text-indigo-600">
+                        <span class="text-sm text-gray-700">Auto-learn from current form</span>
+                    </label>
+                    <div>
+                        <label for="threshold" class="block text-sm font-medium text-gray-700">Match threshold: <span id="thresholdValue" class="font-semibold">0.55</span></label>
+                        <input type="range" id="threshold" min="0.3" max="0.9" step="0.01" value="0.55" class="w-full">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saved Profiles -->
+            <div class="mt-4">
+                <h2 class="text-md font-semibold text-gray-800 mb-2">Saved Profiles</h2>
+                <div id="profilesList" class="bg-gray-50 rounded-md p-3 max-h-40 overflow-y-auto">
+                    <p class="text-gray-500 text-sm">No profiles saved yet.</p>
+                </div>
+            </div>
+
+            <!-- Main Action Button -->
+            <button id="fillForm" class="w-full bg-blue-500 text-white py-3 px-4 rounded-md shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 font-semibold text-lg mt-4">
+                🚀 Fill Form
+            </button>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
