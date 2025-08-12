@@ -261,8 +261,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fillFormBtn.addEventListener('click', () => {
         const profileName = profileNameInput.value.trim();
-        if (!profileName) {
-            alert('Please load or save a profile first.');
+        // Use currentFields directly for filling, not just the saved profile
+        if (!profileName || Object.keys(currentFields).length === 0) {
+            alert('Please load or save a profile and add at least one field.');
             return;
         }
 
@@ -270,10 +271,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             const currentTabId = tabs[0].id;
-            chrome.storage.local.get('profiles', (data) => {
-                const profileToFill = data.profiles[profileName];
-                chrome.tabs.sendMessage(currentTabId, { action: 'FILL_FORM', profile: profileToFill, settings });
-            });
+            // Use currentFields (live UI state) instead of only saved profile
+            chrome.tabs.sendMessage(currentTabId, { action: 'FILL_FORM', profile: { ...currentFields }, settings });
         });
     });
 
