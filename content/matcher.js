@@ -51,6 +51,21 @@ window.smartFormMatcher = {
         return out; // set
     },
 
+    addDynamicSynonyms(tokens) {
+        const dynamicSynonyms = new Map([
+            ['mobile number', ['mobile number - 10 digits only', 'phone number', 'contact number']]
+        ]);
+        const out = new Set(tokens);
+        for (const t of tokens) {
+            for (const [key, values] of dynamicSynonyms) {
+                if (t.includes(key)) {
+                    values.forEach(value => out.add(value));
+                }
+            }
+        }
+        return out;
+    },
+
     getTypeHints(text) {
         const t = this.normalize(text);
         const hints = new Set();
@@ -126,24 +141,40 @@ window.smartFormMatcher = {
         return best;
     },
 
-    // Return best match object { key, value, score }
-    matchQuestion(question, profile) {
+    async loadMiniLMModel() {
+        if (!this.model) {
+            const modelURL = '../models/minilm-model'; // Adjust path if needed
+            this.model = await window.sentenceTransformers.loadModel(modelURL);
+            console.log('MiniLM model loaded.');
+        }
+    },
+
+    async computeSemanticSimilarity(text1, text2) {
+        if (!this.model) await this.loadMiniLMModel();
+        const embeddings = await this.model.embed([text1, text2]);
+        const [vec1, vec2] = embeddings;
+        const dotProduct = vec1.reduce((sum, val, i) => sum + val * vec2[i], 0);
+        const magnitude1 = Math.sqrt(vec1.reduce((sum, val) => sum + val * val, 0));
+        const magnitude2 = Math.sqrt(vec2.reduce((sum, val) => sum + val * val, 0));
+        return dotProduct / (magnitude1 * magnitude2);
+    },
+
+    async matchQuestion(question, profile) {
         const profileKeys = Object.keys(profile || {});
         if (!profileKeys.length) return null;
-        // Precompute normalized keys to save work
         let best = { key: null, value: null, score: 0 };
         for (const key of profileKeys) {
-            const s = this.scoreSimilarity(question, key);
-            if (s > best.score) best = { key, value: profile[key], score: s };
+            const similarity = await this.computeSemanticSimilarity(question, key);
+            if (similarity > best.score) best = { key, value: profile[key], score: similarity };
         }
         return best.key ? best : null;
     },
 
     matchQuestionToAnswer: async function(question, profile, options = {}) {
-        // options: { threshold?: number }
-        const threshold = typeof options.threshold === 'number' ? options.threshold : 0.55;
-        const best = this.matchQuestion(question, profile);
+        const threshold = typeof options.threshold === 'number' ? options.threshold : 0.25;
+        const best = await this.matchQuestion(question, profile);
         if (best && best.score >= threshold) return best.value;
+        console.log(`Unmatched field: ${question}`); // Log unmatched fields for review
         return null;
     }
 };
